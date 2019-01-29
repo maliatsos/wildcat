@@ -1,0 +1,33 @@
+function ofdm_out = ofdma_tx(size_of_data, Nfft, cp, modRank, guard, numOfSubchannels, subCh_ind)
+
+samples_per_subchannel = Nfft/length(subCh_ind);
+NsubCh = Nfft/numOfSubchannels;
+
+%% Create QAM data
+X=randint(1,size_of_data,modRank);
+
+if modRank==2 || modRank==4
+    X=pskmod(X,modRank);
+elseif modRank==8
+    X=qamMapper(X,modRank,'Rectangular');
+elseif modRank>8
+    X=qamMapper(X,modRank,'Symmetrical');
+end
+
+%% identify the number of symbols needed for given data siz
+numOfSymbols=ceil(sizeOfData/(samples_per_subchannel-guard));
+X=[X zeros(1,samples_per_subchannel-guard-mod(size_of_data,(samples_per_subchannel-guard)))];
+
+Xsymbols=zeros(numOfSymbols,Nfft);
+for k=1:numOfSymbols
+    for m = 1: length(subCh_ind)
+        
+        Xsymbols(k,:)=[zeros(1,fix(guard/2)) X(1+(k-1)*(Nfft-guard):k*(Nfft-guard)) zeros(1,fix(guard/2)+mod(guard,2))];
+        
+    end
+end
+Xofdm=ifft(Xsymbols,[],2);
+
+
+
+

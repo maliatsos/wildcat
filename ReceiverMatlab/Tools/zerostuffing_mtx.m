@@ -1,0 +1,3 @@
+function Z = zerostuffing_mtx(Ns, Nc)
+% Adds zeros - just that...
+Z = [eye(Ns); zeros(Nc-Ns,Ns)];
